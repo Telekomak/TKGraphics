@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Mathematics;
 
-namespace TKGraphics.Abstraction
+namespace TKGraphics.Abstraction.DataStructures
 {
     public class Vertex
     {

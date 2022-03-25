@@ -7,7 +7,7 @@ using OpenTK.Mathematics;
 
 namespace TKGraphics.GLComponents
 {
-    internal static class Extensions
+    public static class Extensions
     {
         #region Matrix to array
 

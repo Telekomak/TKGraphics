@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing.Drawing2D;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TKGraphics.Utilities.Logger;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -22,7 +16,7 @@ namespace TKGraphics.GLComponents
             get { return _attachedShaders.ToArray(); }
         }
 
-        public ShaderProgram():base()
+        public ShaderProgram()
         {
             _uniforms = new Dictionary<string, int>();
             _attachedShaders = new List<Shader>();
@@ -30,9 +24,9 @@ namespace TKGraphics.GLComponents
             Init();
         }
 
-        public ShaderProgram(IEnumerable<Shader> shaders) : base()
+        public ShaderProgram(IEnumerable<Shader> shaders)
         {
-            _attachedShaders = new List<Shader>(shaders);
+            _attachedShaders = new List<Shader>();
             _uniforms = new Dictionary<string, int>();
 
             Init();
@@ -40,7 +34,7 @@ namespace TKGraphics.GLComponents
             Update();
         }
 
-        protected override void Init()
+        private void Init()
         {
             Id = GL.CreateProgram();
         }
@@ -100,8 +94,11 @@ namespace TKGraphics.GLComponents
         {
             foreach (Shader shader in shaders)
             {
+                _attachedShaders.Add(shader);
                 GL.AttachShader(Id, shader.Id);
+                CacheUniforms(shader);
             }
+            Update();
         }
 
         public void AttachShader(Shader shader)
@@ -114,6 +111,8 @@ namespace TKGraphics.GLComponents
 
         public void SetUniform<T>(T value, string name) where T : IEquatable<T>
         {
+            Bind();
+
             try
             {
                 switch (value)
@@ -166,6 +165,8 @@ namespace TKGraphics.GLComponents
             {
                 Logger.Log(new LogEntry(e.ToString(),"SetUniform", e.Message, EntryType.Error, DateTime.Now - Process.GetCurrentProcess().StartTime));
             }
+
+            //Unbind();
         }
 
         public void Update()
@@ -176,11 +177,13 @@ namespace TKGraphics.GLComponents
 
         public override void Bind()
         {
+            IsBound = true;
             GL.UseProgram(Id);
         }
 
         public override void Unbind()
         {
+            IsBound = false;
             GL.UseProgram(0);
         }
 

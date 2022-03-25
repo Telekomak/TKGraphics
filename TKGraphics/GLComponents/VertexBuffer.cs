@@ -4,68 +4,93 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL4;
+using TKGraphics.Abstraction.DataStructures;
 
 namespace TKGraphics.GLComponents
 {
-    public class VertexBuffer : GLObject
+    public class VertexBuffer : Buffer<float>
     {
-        public BufferUsageHint Usage { get; private set; }
-        public float[] Vertices { get; private set; }
-        public VertexBuffer(float[] vertices, BufferUsageHint usage = BufferUsageHint.StaticDraw)
+        private List<Vertex> _vertices;
+
+        public Vertex[] Vertices
         {
-            Vertices = vertices;
-            Usage = usage;
+            get
+            {
+                return _vertices.ToArray();
+            }
+        }
+
+        public VertexBuffer(IEnumerable<Vertex> vertices, BufferUsageHint usage = BufferUsageHint.DynamicDraw) : base(usage)
+        {
+            _vertices = vertices.ToList();
             Init();
-            Update(vertices);
+            ResizeBuffer(GetData());
         }
 
-        public VertexBuffer()
+        public VertexBuffer(BufferUsageHint usage = BufferUsageHint.DynamicDraw) : base(usage)
         {
-            Usage = BufferUsageHint.StaticDraw;
-            Vertices = Array.Empty<float>();
             Init();
         }
 
-        protected override void Init()
+        private float[] GetData()
         {
-            Id = GL.GenBuffer();
+            List<float> retData = new List<float>();
+
+            foreach (Vertex vertex in _vertices)
+            {
+                retData.AddRange(vertex.Vertices);
+            }
+
+            return retData.ToArray();
         }
 
-        public void Update(float[] vertices)
+        private float[] GetData(IEnumerable<Vertex> vertices)
         {
-            Bind();
-            Vertices = vertices;
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, Usage);
+            _vertices = vertices.ToList();
+            List<float> retData = new List<float>();
+
+            foreach (Vertex vertex in _vertices)
+            {
+                retData.AddRange(vertex.Vertices);
+            }
+
+
+            return retData.ToArray();
         }
 
-        public void Update(BufferUsageHint usage)
+        public void Update(IEnumerable<Vertex> data)
         {
-            Bind();
-            Usage = usage;
-            GL.BufferData(BufferTarget.ArrayBuffer, Vertices.Length * sizeof(float), Vertices, Usage);
+            Update(GetData(data));
         }
 
-        public void Update(float[] vertices, BufferUsageHint usage)
+        public void Add(Vertex vertex)
         {
-            Bind();
-            Usage = usage;
-            Vertices = vertices;
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, usage);
+            _vertices.Add(vertex);
+            Update(GetData());
         }
 
-        public override void Bind()
+        public void Add(IEnumerable<Vertex> vertices)
         {
-            GL.BindBuffer(BufferTarget.ArrayBuffer, Id);
+            _vertices.AddRange(vertices);
+            Update(GetData());
         }
 
-        public override void Unbind()
+        public void Replace(Vertex oldVertex, Vertex newVertex)
         {
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            _vertices[_vertices.IndexOf(oldVertex)] = newVertex;
+            Update(GetData());
+        }
+        
+        public void Replace(int index, Vertex newVertex)
+        {
+            _vertices[index] = newVertex;
+            Update(GetData());
         }
 
-        public override void Dispose()
+        public void Remove(Vertex vertex)
         {
-            GL.DeleteBuffer(Id);
+            _vertices.Remove(vertex);
+            Update(GetData());
         }
     }
 }

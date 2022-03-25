@@ -10,16 +10,13 @@ namespace TKGraphics.GLComponents
 {
     public class VertexArray : GLObject
     {
-        public VertexBuffer Buffer { get; private set; }
         public VertexArrayLayout Layout { get; private set; }
+        public VertexBuffer Buffer { get; private set; }
 
-        public VertexArray(VertexBuffer buffer, VertexArrayLayout layout)
+        public VertexArray(VertexArrayLayout layout, VertexBuffer buffer)
         {
-            Buffer = buffer;
-            Layout = layout;
-
             Init();
-            Update(buffer, layout);
+            Update(layout, buffer);
         }
 
         public VertexArray()
@@ -27,45 +24,48 @@ namespace TKGraphics.GLComponents
             Init();
         }
 
-        protected override void Init()
+        private void Init()
         {
             Id = GL.GenVertexArray();
         }
 
-        public void Update(VertexBuffer vertexBuffer, VertexArrayLayout layout)
+        public void Update(VertexArrayLayout layout, VertexBuffer buffer)
         {
-            vertexBuffer.Bind();
-            Bind();
-
-            int offset = 0;
-            for (int i = 0; i < layout.Elements.Length; i++)
-            {
-                GL.EnableVertexAttribArray(i);
-                GL.VertexAttribPointer(i, layout.Elements[i].Count, layout.Elements[i].Type, layout.Elements[i].Normalized, layout.Stride, layout.Elements[i].Offset);
-            }
+            Buffer = buffer;
+            Layout = layout;
+            Update();
         }
 
-        public void Update(VertexBuffer vertexBuffer)
+        public void Update(VertexArrayLayout layout)
         {
-            vertexBuffer.Bind();
-            Bind();
+            Layout = layout;
+            Update();
+        }
 
-            int offset = 0;
+        private void Update()
+        {
+            Bind();
+            Buffer.Bind();
+
             for (int i = 0; i < Layout.Elements.Length; i++)
             {
                 GL.EnableVertexAttribArray(i);
-                GL.VertexAttribPointer(i, Layout.Elements[i].Count, Layout.Elements[i].Type, Layout.Elements[i].Normalized, Layout.Stride, offset);
-                offset += Layout.Elements[i].Size * Layout.Elements[i].Count;
+                GL.VertexAttribPointer(i, Layout.Elements[i].Count, Layout.Elements[i].Type, Layout.Elements[i].Normalized, Layout.Stride, Layout.Elements[i].Offset);
             }
+
+            //Unbind();
+            //Buffer.Unbind();
         }
 
         public override void Bind()
         {
+            IsBound = true;
             GL.BindVertexArray(Id);
         }
 
         public override void Unbind()
         {
+            IsBound = false;
             GL.BindVertexArray(0);
         }
 

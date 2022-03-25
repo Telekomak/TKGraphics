@@ -27,10 +27,9 @@ namespace TKGraphics.GLComponents
             Init();
         }
 
-        protected override void Init()
+        private void Init()
         {
             Id = GL.GenTexture();
-            Bind();
         }
 
         public void Update(string filepath)
@@ -56,6 +55,8 @@ namespace TKGraphics.GLComponents
 
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(Settings.BlendingSFactor, Settings.BlendingDFactor);
+
+            //Unbind();
         }
 
         public void Update(string filepath, TextureSettings settings)
@@ -87,17 +88,20 @@ namespace TKGraphics.GLComponents
 
         public override void Bind()
         {
+            IsBound = true;
             GL.BindTexture(TextureTarget.Texture2D, Id);
         }
 
         public void Bind(int slot)
         {
+            IsBound = true;
             GL.ActiveTexture(TextureUnit.Texture0 + slot);
             GL.BindTexture(TextureTarget.Texture2D, Id);
         }
 
         public override void Unbind()
         {
+            IsBound = false;
             GL.BindTexture(TextureTarget.Texture2D, Id);
         }
 

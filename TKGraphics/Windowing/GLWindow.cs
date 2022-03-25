@@ -31,13 +31,22 @@ namespace TKGraphics.Windowing
             GL.ClearColor(clearColor);
         }
 
-        public void Render(VertexArray vertexArray, IndexBuffer indexBuffer, ShaderProgram shader, BeginMode mode)
+        public void DrawElements(VertexArray vertexArray, Buffer<uint> indexBuffer, ShaderProgram shader, BeginMode mode)
         {
             vertexArray.Bind();
             indexBuffer.Bind();
             shader.Bind();
 
-            GL.DrawElements(mode, indexBuffer.Count, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(mode, indexBuffer.Data.Length, DrawElementsType.UnsignedInt, 0);
+            //GL.DrawElements(PrimitiveType.Triangles, indexBuffer.Data.Length, DrawElementsType.UnsignedInt, IntPtr.Zero);
+        }
+
+        public void DrawArrays(PrimitiveType primitive, int first, int count, VertexArray vertexArray, ShaderProgram shader)
+        {
+            vertexArray.Bind();
+            shader.Bind();
+
+            GL.DrawArrays(primitive, first, count);
         }
 
         public void SwapBuffers()
@@ -48,7 +57,6 @@ namespace TKGraphics.Windowing
         public void Clear(ClearBufferMask mask)
         {
            GL.Clear(mask);
-           GLFW.SwapBuffers(WindowPtr);
         }
     }
 }

@@ -9,31 +9,15 @@ namespace TKGraphics.GLComponents
     public abstract class GLObject : IDisposable
     {
         public int Id { get; protected set; }
+        public bool IsBound { get; protected set; }
 
         protected GLObject()
         {
             
         }
 
-        protected virtual void Init()
-        {
-
-        }
-
-        protected virtual void Init(object o)
-        {
-
-        }
-
-        public virtual void Bind()
-        {
-
-        }
-
-        public virtual void Unbind()
-        {
-
-        }
         public abstract void Dispose();
+        public abstract void Bind();
+        public abstract void Unbind();
     }
 }

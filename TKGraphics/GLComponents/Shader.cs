@@ -10,29 +10,30 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace TKGraphics.GLComponents
 {
-    public class Shader : GLObject
+    public class Shader : IDisposable
     {
+        public int Id { get; private set; }
         public ShaderType Type { get; private set; }
-        public string Code { get; private set; }
+        public string Source { get; private set; }
 
         public Shader(ShaderType type, string filePath)
         {
             Type = type;
-            Code = ReadFile(filePath);
+            Source = ReadFile(filePath);
 
             Init(type);
-            Compile(Code);
-            LogCompileInfo(Code);
+            Compile(Source);
+            LogCompileInfo(Source);
         }
 
-        protected override void Init(object o)
+        private void Init(ShaderType type)
         {
-            Id = GL.CreateShader((ShaderType)o);
+            Id = GL.CreateShader(type);
         }
 
-        private void Compile(string shader)
+        private void Compile(string source)
         {
-            GL.ShaderSource(Id, shader);
+            GL.ShaderSource(Id, source);
             GL.CompileShader(Id);
         }
 
@@ -60,18 +61,13 @@ namespace TKGraphics.GLComponents
         public IEnumerable<string> GetUniforms()
         {
             List<string> retData = new List<string>();
-            MatchCollection names = Regex.Matches(Code, @"(?<=uniform .* )(.*)(?=\;)");
+            MatchCollection names = Regex.Matches(Source, @"(?<=uniform .* )(.*)(?=\;)");
 
             foreach (Match match in names) retData.Add(match.Value);
             return retData;
         }
 
-        public void Update()
-        {
-
-        }
-
-        public override void Dispose()
+        public void Dispose()
         {
             GL.DeleteShader(Id);
         }

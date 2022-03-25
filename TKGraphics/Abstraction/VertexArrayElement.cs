@@ -15,12 +15,12 @@ namespace TKGraphics.Abstraction
         public int Offset { get; set; }
         public bool Normalized { get; private set; }
 
-        public VertexArrayElement(VertexAttribPointerType type, int count, int size, bool normalized = false)
+        public VertexArrayElement(VertexAttribPointerType type, int count, int size, int offset, bool normalized = false)
         {
             Type = type;
             Count = count;
             Size = size;
-            Offset = 0;
+            Offset = offset;
             Normalized = normalized;
         }
     }
